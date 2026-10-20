@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/common/widgets/app_button.dart';
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colours.dart';
 import '../../../../core/theme/app_dimentions.dart';
 import '../../../../core/theme/app_icons.dart';
-
 
 class RegistrationSuccessfullScreen extends StatelessWidget {
   const RegistrationSuccessfullScreen({super.key});
@@ -44,7 +44,16 @@ class RegistrationSuccessfullScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     height: 54,
-                    child: PrimaryButton(text: 'Go to home', onPressed: () {}),
+                    child: PrimaryButton(
+                      text: 'Go to home',
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          AppRoutes.home,
+                          (route) => false,
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

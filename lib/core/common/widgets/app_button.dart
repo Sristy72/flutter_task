@@ -142,13 +142,13 @@ class SecondaryButton extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             offset: const Offset(0, 4),
             blurRadius: 6,
             spreadRadius: -4,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             offset: const Offset(0, 10),
             blurRadius: 15,
             spreadRadius: -3,

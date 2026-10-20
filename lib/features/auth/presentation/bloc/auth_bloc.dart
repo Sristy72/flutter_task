@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 
 import '../../../../core/network/api_exception.dart';
+import '../../data/models/requests/guest_login_request_model.dart';
+import '../../data/models/requests/login_request_model.dart';
 import '../../data/models/requests/signup_request_model.dart';
 import '../../data/models/requests/verify_otp_request_model.dart';
 import '../../data/repository/auth_repository.dart';
@@ -26,14 +28,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginFormChanged>(_onLoginFormChanged);
     on<LoginPasswordVisibilityCheck>(_onLoginPasswordVisibilityCheck);
     on<Login>(_login);
+    on<GuestLogin>(_guestLogin);
+    on<Logout>(_onLogout);
 
     // Status reset
     on<AuthStatusReset>(_onAuthStatusReset);
 
     // Verify OTP
     on<OtpCodeChanged>(_onOtpCodeChanged);
-    on<OtpResendStarted>(_onOtpResendStarted);
-    on<OtpResendTicked>(_onOtpResendTicked);
     on<OtpLockoutStarted>(_onOtpLockoutStarted);
     on<OtpLockoutTicked>(_onOtpLockoutTicked);
     on<OtpLockoutExpired>(_onOtpLockoutExpired);
@@ -158,7 +160,87 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _login(Login event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    // Login API implementation if ready
+
+    try {
+      final deviceId = event.deviceId ??
+          await authRepository.authStorageService.getOrCreateDeviceId();
+
+      final request = LoginRequestModel(
+        email: event.email.trim(),
+        password: event.password,
+        deviceId: deviceId,
+      );
+
+      final response = await authRepository.login(request);
+
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          loginResponse: response,
+          isGuest: false,
+          successMsg: response.detail.isNotEmpty
+              ? response.detail
+              : 'Logged in successfully!',
+        ),
+      );
+    } on ApiException catch (e) {
+      emit(
+        state.copyWith(
+          status: AuthStatus.failure,
+          errorMsg: e.message,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AuthStatus.failure,
+          errorMsg: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _guestLogin(GuestLogin event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    try {
+      final deviceId = event.deviceId ??
+          await authRepository.authStorageService.getOrCreateDeviceId();
+
+      final request = GuestLoginRequestModel(deviceId: deviceId);
+
+      final response = await authRepository.guestLogin(request);
+
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          guestLoginResponse: response,
+          isGuest: true,
+          successMsg: response.detail.isNotEmpty
+              ? response.detail
+              : 'Welcome, Guest!',
+        ),
+      );
+    } on ApiException catch (e) {
+      emit(
+        state.copyWith(
+          status: AuthStatus.failure,
+          errorMsg: e.message,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AuthStatus.failure,
+          errorMsg: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _onLogout(Logout event, Emitter<AuthState> emit) async {
+    await authRepository.authStorageService.clearToken();
+    emit(AuthState(status: AuthStatus.unauthenticated));
   }
 
   // ─── OTP Handlers
@@ -174,35 +256,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     ));
   }
 
-  void _onOtpResendStarted(OtpResendStarted event, Emitter<AuthState> emit) {
-    _resendTimer?.cancel();
-    emit(state.copyWith(
-      otpResendCountdown: 30,
-      otpHasError: false,
-      otpErrorMessage: '',
-      otpRemainingAttempts: 4,
-    ));
-
-    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      final current = state.otpResendCountdown;
-      if (current > 1) {
-        add(OtpResendTicked(current - 1));
-      } else {
-        timer.cancel();
-        add(OtpResendTicked(0));
-      }
-    });
-  }
-
-  void _onOtpResendTicked(OtpResendTicked event, Emitter<AuthState> emit) {
-    emit(state.copyWith(otpResendCountdown: event.secondsRemaining));
-  }
-
   void _onOtpLockoutStarted(OtpLockoutStarted event, Emitter<AuthState> emit) {
     _lockoutTimer?.cancel();
     emit(state.copyWith(
       isOtpLockedOut: true,
-      otpLockoutCountdown: 30 * 60,
+      otpLockoutCountdown:30 * 60,
       otpRemainingAttempts: 0,
     ));
 
@@ -221,16 +279,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(otpLockoutCountdown: event.secondsRemaining));
   }
 
-  void _onOtpLockoutExpired(OtpLockoutExpired event, Emitter<AuthState> emit) {
-    emit(state.copyWith(
-      isOtpLockedOut: false,
-      otpLockoutCountdown: 0,
-      otpRemainingAttempts: 4,
-      otpHasError: false,
-      otpErrorMessage: '',
-      otpCode: '',
-      isOtpCodeComplete: false,
-    ));
+  void _onOtpLockoutExpired(
+      OtpLockoutExpired event,
+      Emitter<AuthState> emit,
+      ) {
+    emit(
+      state.copyWith(
+        status: AuthStatus.initial,
+        isOtpLockedOut: false,
+        otpLockoutCountdown: 0,
+        otpRemainingAttempts: 4,
+        otpHasError: false,
+        otpErrorMessage: '',
+        otpCode: '',
+        isOtpCodeComplete: false,
+        errorMsg: null,
+        successMsg: null,
+      ),
+    );
   }
 
   Future<void> _verifyOtp(VerifyOtp event, Emitter<AuthState> emit) async {

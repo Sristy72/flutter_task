@@ -4,11 +4,11 @@ import '../../../../core/common/widgets/app_button.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colours.dart';
 import '../../../../core/theme/app_dimentions.dart';
-import '../../../../core/theme/app_icons.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/app_back_button.dart';
+import '../widgets/lock_widget.dart';
 import '../widgets/otp_box.dart';
 import '../widgets/text_with_navigation_button.dart';
 
@@ -67,8 +67,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Email address is missing'),
-          backgroundColor: Color(0xFF1E2320),
+          content: Text('Email address is missing', style: TextStyle(color: Colors.white),),
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -102,16 +102,36 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status &&
+      (previous.status != current.status &&
           (current.status == AuthStatus.otpVerificationSuccess ||
-           current.status == AuthStatus.otpVerificationFailure),
+              current.status == AuthStatus.otpVerificationFailure)) ||
+          (previous.isOtpLockedOut &&
+              !current.isOtpLockedOut &&
+              current.otpLockoutCountdown == 0),
+
       listener: (context, state) {
+        // Clear OTP fields when the lockout timer expires.
+        if (!state.isOtpLockedOut &&
+            state.otpLockoutCountdown == 0 &&
+            state.status == AuthStatus.initial) {
+          _controller1.clear();
+          _controller2.clear();
+          _controller3.clear();
+          _controller4.clear();
+
+          _focusNode1.unfocus();
+          _focusNode2.unfocus();
+          _focusNode3.unfocus();
+          _focusNode4.unfocus();
+        }
+
         if (state.status == AuthStatus.otpVerificationSuccess) {
           context.read<AuthBloc>().add(AuthStatusReset());
+
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.registrationSuccess,
-            (route) => false,
+            AppRoutes.home,
+                (route) => false,
           );
         }
       },
@@ -143,30 +163,83 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
 
               // Padlock icon
-              const PadIcon(),
+              const Lock(),
 
               const SizedBox(height: AppDimensions.boldFontSize),
+
+              // Countdown Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 22),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBackColor,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      offset: const Offset(0, 4),
+                      blurRadius: 6,
+                      spreadRadius: -4,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      offset: const Offset(0, 10),
+                      blurRadius: 15,
+                      spreadRadius: -3,
+                    )
+                  ]
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: AppDimensions.boldFontSize,),
+                    Icon(Icons.watch_later_outlined, size: 20, color: AppColors.watchColor,),
+                    const SizedBox(height: AppDimensions.paddingSmall),
+                    Text(
+                      _formatTime(state.otpLockoutCountdown),
+                      style: const TextStyle(
+                        fontSize: AppDimensions.largeFont,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryButton,
+                      ),
+                    ),
+                    const SizedBox(height: AppDimensions.radiusMedium),
+                    const Text(
+                      'TIME REMAINING',
+                      style: TextStyle(
+                        fontSize: AppDimensions.radiusMedium,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.hintColor,
+                      ),
+                    ),
+                    SizedBox(height: AppDimensions.boldFontSize,)
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                height: AppDimensions.backButtonIconSize,
+              ),
 
               // "Too Many Attempts" heading
               const Text(
                 'Too Many Attempts',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: AppDimensions.heightBetweenButtonAndText,
                   fontWeight: FontWeight.w700,
                   color: AppColors.deenColor,
-                  letterSpacing: -0.5,
+                  letterSpacing: 0.2,
                 ),
                 textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: AppDimensions.paddingMedium),
 
               // Description
               const Text(
-                'You have entered an incorrect code too many\ntimes. For your security, this feature is locked.',
+                'We\'ve detected too many incorrect verification attempts. For your account\'s security, further attempts have been temporarily blocked.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: AppDimensions.fontSizeMedium,
@@ -176,48 +249,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
               ),
 
-              const SizedBox(height: 32),
 
-              // Countdown Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 22),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF131714),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF1F2620),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _formatTime(state.otpLockoutCountdown),
-                      style: const TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.deenColor,
-                        letterSpacing: 2,
-                        fontFeatures: [
-                          FontFeature.tabularFigures(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'TRY AGAIN IN',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF6E786B),
-                        letterSpacing: 2.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
 
               const Spacer(flex: 2),
 
@@ -230,9 +263,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     const Icon(
                       Icons.warning_amber_rounded,
                       color: AppColors.help,
-                      size: 20,
+                      size: AppDimensions.paddingMedium,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppDimensions.paddingSmall),
                     const Text(
                       'Need help? ',
                       style: TextStyle(
@@ -242,12 +275,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                         letterSpacing: AppDimensions.letterSpacing,
                       ),
                     ),
+                    const SizedBox(width: AppDimensions.paddingSmall),
+
                     GestureDetector(
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Support: support@deenstep.com'),
-                            backgroundColor: Color(0xFF1E2320),
+                            backgroundColor: AppColors.success,
                           ),
                         );
                       },
@@ -371,7 +406,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
                 // Error message row (shown when state.otpHasError is true)
                 if (state.otpHasError && state.otpErrorMessage.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppDimensions.radiusMedium),
                   Text(
                     state.otpErrorMessage,
                     style: const TextStyle(
@@ -410,7 +445,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                   onTap: () {},
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: AppDimensions.heightBetweenButtonAndText),
               ],
             ),
           ),
@@ -420,51 +455,4 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 }
 
-class PadIcon extends StatelessWidget {
-  const PadIcon({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 96,
-      height: 96,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.lockBack,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, 0),
-            blurRadius: 20,
-            spreadRadius: 0,
-          )
-        ],
-        border: Border.all(
-          color: AppColors.textFieldBorderColor,
-          width: 1,
-        ),
-      ),
-      child: Center(
-        child: Container(
-          width: 68,
-          height: 68,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.lockBack,
-            border: Border.all(
-              color: AppColors.textFieldBorderColor,
-              width: 2,
-            ),
-          ),
-          child: Center(
-            child: Image.asset(
-              AppIcons.lock,
-              width: 36,
-              height: 36,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

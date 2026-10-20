@@ -72,7 +72,24 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.failure) {
+        if (state.status == AuthStatus.authenticated) {
+          final message = state.successMsg ??
+              (state.isGuest ? 'Logged in as Guest' : 'Welcome back!');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: const TextStyle(color: AppColors.secondaryButtonColor),
+              ),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.home,
+            (route) => false,
+          );
+        } else if (state.status == AuthStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMsg ?? 'Login failed'),

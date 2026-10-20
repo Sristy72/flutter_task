@@ -61,11 +61,19 @@ class LoginPasswordVisibilityCheck extends AuthEvent {}
 class Login extends AuthEvent {
   final String email;
   final String password;
+  final String? deviceId;
 
   Login({
     required this.email,
     required this.password,
+    this.deviceId,
   });
+}
+
+class GuestLogin extends AuthEvent {
+  final String? deviceId;
+
+  GuestLogin({this.deviceId});
 }
 
 // ─── OTP Verification Events ─────────────────────────────────────────────────

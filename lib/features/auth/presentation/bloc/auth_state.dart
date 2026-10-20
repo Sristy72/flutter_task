@@ -1,3 +1,5 @@
+import '../../data/models/response/guest_login_response_model.dart';
+import '../../data/models/response/login_response_model.dart';
 import '../../data/models/response/sign_up_response_model.dart';
 import '../../data/models/response/verify_otp_response_model.dart';
 
@@ -40,6 +42,9 @@ class AuthState {
   // Models & messages
   final SignupUserModel? user;
   final VerifyOtpResponseModel? verifyOtpResponse;
+  final LoginResponseModel? loginResponse;
+  final GuestLoginResponseModel? guestLoginResponse;
+  final bool isGuest;
   final String? errorMsg;
   final String? successMsg;
   final String? otp;
@@ -61,6 +66,9 @@ class AuthState {
     this.isOtpLockedOut = false,
     this.otpLockoutCountdown = 0,
     this.otpResendCountdown = 0,
+    this.loginResponse,
+    this.guestLoginResponse,
+    this.isGuest = false,
     this.errorMsg,
     this.successMsg,
     this.user,
@@ -85,6 +93,9 @@ class AuthState {
     bool? isOtpLockedOut,
     int? otpLockoutCountdown,
     int? otpResendCountdown,
+    LoginResponseModel? loginResponse,
+    GuestLoginResponseModel? guestLoginResponse,
+    bool? isGuest,
     SignupUserModel? user,
     VerifyOtpResponseModel? verifyOtpResponse,
     String? errorMsg,
@@ -110,6 +121,9 @@ class AuthState {
       isOtpLockedOut: isOtpLockedOut ?? this.isOtpLockedOut,
       otpLockoutCountdown: otpLockoutCountdown ?? this.otpLockoutCountdown,
       otpResendCountdown: otpResendCountdown ?? this.otpResendCountdown,
+      loginResponse: loginResponse ?? this.loginResponse,
+      guestLoginResponse: guestLoginResponse ?? this.guestLoginResponse,
+      isGuest: isGuest ?? this.isGuest,
       user: user ?? this.user,
       verifyOtpResponse: verifyOtpResponse ?? this.verifyOtpResponse,
       errorMsg: errorMsg,

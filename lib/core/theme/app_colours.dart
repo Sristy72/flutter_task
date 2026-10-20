@@ -51,4 +51,6 @@ class AppColors {
 
   static const firstCircleColor = Color(0xFF44541E);
   static const secondCircleColor = Color(0xFF313B19);
+  static const cardBackColor = Color(0xFF0F1612);
+  static const watchColor = Color(0xFF94A3B8);
 }

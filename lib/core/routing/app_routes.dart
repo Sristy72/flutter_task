@@ -6,4 +6,5 @@ class AppRoutes {
   static const String signup = '/signup';
   static const String verifyEmail = '/verify-email';
   static const String registrationSuccess = '/registration-success';
+  static const String home = '/home';
 }

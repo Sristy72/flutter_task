@@ -4,7 +4,8 @@ class ApiConstants {
   static const String baseUrl = 'https://test.deenstep.com/api/v1';
 
   //auth
-  static const String login = '$baseUrl/auth/login';
+  static const String login = '$baseUrl/auth/login/';
+  static const String guestLogin = '$baseUrl/auth/guest/login/';
   static const String register = '$baseUrl/auth/sign-up/';
   static const String verifyOtp = '$baseUrl/auth/sign-up/verify/';
   static const String logout = 'auth/logout';

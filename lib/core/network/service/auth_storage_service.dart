@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import '../constants/storage_constants.dart';
 import 'secure_storage_service.dart';
 
@@ -58,6 +59,49 @@ class AuthStorageService {
     return null;
   }
 
+  Future<void> saveUserName(String name) async {
+    await secureStorage.write('user_name', name);
+  }
+
+  Future<String?> getUserName() async {
+    return secureStorage.read('user_name');
+  }
+
+  Future<void> saveUserEmail(String email) async {
+    await secureStorage.write('user_email', email);
+  }
+
+  Future<String?> getUserEmail() async {
+    return secureStorage.read('user_email');
+  }
+
+  Future<void> saveIsGuest(bool isGuest) async {
+    await secureStorage.write('is_guest', isGuest.toString());
+  }
+
+  Future<bool> isGuest() async {
+    final stored = await secureStorage.read('is_guest');
+    return stored == 'true';
+  }
+
+  Future<String> getOrCreateDeviceId() async {
+    final existing = await secureStorage.read('device_id');
+    if (existing != null && existing.isNotEmpty) {
+      return existing;
+    }
+
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).toList();
+    final newId =
+        '${hex.sublist(0, 4).join()}-${hex.sublist(4, 6).join()}-${hex.sublist(6, 8).join()}-${hex.sublist(8, 10).join()}-${hex.sublist(10, 16).join()}';
+
+    await secureStorage.write('device_id', newId);
+    return newId;
+  }
+
   String? _extractUserIdFromToken(String token) {
     try {
       final parts = token.split('.');
@@ -79,6 +123,9 @@ class AuthStorageService {
     await secureStorage.delete(StorageConstants.accessToken);
     await secureStorage.delete(StorageConstants.refreshToken);
     await secureStorage.delete('user_id');
+    await secureStorage.delete('is_guest');
+    await secureStorage.delete('user_name');
+    await secureStorage.delete('user_email');
   }
 
   Future<bool> isLoggedIn() async {
