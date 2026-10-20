@@ -130,7 +130,9 @@ class AuthStorageService {
 
   Future<bool> isLoggedIn() async {
     final token = await getAccessToken();
-
-    return token != null && token.isNotEmpty;
+    if (token != null && token.isNotEmpty) {
+      return true;
+    }
+    return isGuest();
   }
 }

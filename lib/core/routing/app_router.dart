@@ -5,6 +5,7 @@ import '../../features/auth/presentation/screens/registration_successfull_screen
 import '../../features/auth/presentation/screens/signup_screen.dart';
 import '../../features/auth/presentation/screens/verify_email_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/navigation_menu/main_screen_view.dart';
 import '../../features/splash/splash_screen.dart';
 import 'app_routes.dart';
 
@@ -33,6 +34,9 @@ class AppRouter {
 
       case AppRoutes.home:
         return _buildRoute(const HomeScreen(), settings);
+
+      case AppRoutes.navBar:
+        return _buildRoute(const MainScreenView(), settings);
 
       default:
         return _buildRoute(

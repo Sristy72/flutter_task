@@ -53,4 +53,6 @@ class AppColors {
   static const secondCircleColor = Color(0xFF313B19);
   static const cardBackColor = Color(0xFF0F1612);
   static const watchColor = Color(0xFF94A3B8);
+  static const navBarBackColor = Color(0xFF121C18);
+  static const navBarBorderColor = Color(0x1F293700);
 }

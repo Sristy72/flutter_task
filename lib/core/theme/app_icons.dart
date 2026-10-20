@@ -7,4 +7,9 @@ class AppIcons {
   static const String appleLogo = 'assets/images/apple_logo.png';
   static const String lock = 'assets/images/solar_lock-bold-duotone.png';
   static const String successIcon = 'assets/images/Success Icon Area.png';
+  static const String communityIcon = 'assets/images/community.png';
+  static const String reflect = 'assets/images/reflect.png';
+  static const String prayer = 'assets/images/prayer.png';
+  static const String home = 'assets/images/home.png';
+  static const String profile = 'assets/images/profile.png';
 }

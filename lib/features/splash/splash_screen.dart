@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_task/features/splash/widgets/background_dot.dart';
 import '../../core/common/widgets/app_button.dart';
+import '../../core/di/injection.dart';
+import '../../core/network/service/auth_storage_service.dart';
 import '../../core/routing/app_routes.dart';
 
 import '../../core/theme/app_colours.dart';
@@ -28,6 +30,7 @@ class _DeenSplashScreenState extends State<DeenSplashScreen>
   @override
   void initState() {
     super.initState();
+    _checkExistingSession();
 
     controller = AnimationController(
       vsync: this,
@@ -67,6 +70,13 @@ class _DeenSplashScreenState extends State<DeenSplashScreen>
     );
 
     controller.forward();
+  }
+
+  Future<void> _checkExistingSession() async {
+    final isLoggedIn = await getIt<AuthStorageService>().isLoggedIn();
+    if (isLoggedIn && mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.navBar);
+    }
   }
 
   @override
