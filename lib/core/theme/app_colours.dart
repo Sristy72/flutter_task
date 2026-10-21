@@ -66,4 +66,10 @@ class AppColors {
   static const questionBorderColor = Color(0xFF1B3227);
   static const timerColor = Color(0xFF588374);
   static const streakTextColor = Color(0xFFFDE047);
+  static const rotateBackColor = Color(0x4D1F2937);
+  static const shortCutBackColor = Color(0x99141C1A);
+  static const shortCutColor = Color(0xFF1C2623);
+  static const hijriColor = Color(0xFF818CF8);
+  static const zakatColor = Color(0xFFEAB308);
+  static const timesColor = Color(0xFFF472B6);
 }

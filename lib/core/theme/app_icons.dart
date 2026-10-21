@@ -17,4 +17,6 @@ class AppIcons {
   static const String maghrib = 'assets/images/evening.png';
   static const String fajr = 'assets/images/night.png';
   static const String asr = 'assets/images/cloudy.png';
+  static const String aiReflection = 'assets/images/ai.png';
+  static const String book = 'assets/images/prayer_book.png';
 }
