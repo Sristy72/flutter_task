@@ -233,7 +233,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: AppDimensions.heightMedium),
 
                     // 10. Social Buttons (Google & Apple)
-                    const SocialButtons(),
+                    SocialButtons(
+                      onGoogleTap: isLoading
+                          ? null
+                          : () {
+                              context
+                                  .read<AuthBloc>()
+                                  .add(GoogleSignInRequested());
+                            },
+                    ),
 
                     const SizedBox(
                       height: AppDimensions.heightBetweenButtonAndText,

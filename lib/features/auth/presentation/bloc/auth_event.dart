@@ -125,3 +125,17 @@ class ForgotPass extends AuthEvent {
 class Logout extends AuthEvent {}
 
 class AuthStatusReset extends AuthEvent {}
+
+// ─── Social Auth Events ──────────────────────────────────────────────────────
+
+class GoogleSignInRequested extends AuthEvent {
+  final String? deviceId;
+
+  GoogleSignInRequested({this.deviceId});
+}
+
+class GoogleSignUpRequested extends AuthEvent {
+  final String? deviceId;
+
+  GoogleSignUpRequested({this.deviceId});
+}

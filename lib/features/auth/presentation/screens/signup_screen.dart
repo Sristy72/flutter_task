@@ -141,9 +141,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
       listenWhen: (previous, current) =>
           previous.status != current.status &&
           (current.status == AuthStatus.signupSuccess ||
+           current.status == AuthStatus.authenticated ||
            current.status == AuthStatus.failure),
       listener: (context, state) {
-        if (state.status == AuthStatus.signupSuccess) {
+        if (state.status == AuthStatus.authenticated) {
+          final message = state.successMsg ?? 'Welcome!';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: const TextStyle(color: AppColors.secondaryButtonColor),
+              ),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.home,
+            (route) => false,
+          );
+        } else if (state.status == AuthStatus.signupSuccess) {
           final message = state.successMsg ??
               'Account created successfully! Please verify your email.';
           context.read<AuthBloc>().add(AuthStatusReset());
@@ -372,7 +389,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const SizedBox(height: AppDimensions.heightMedium),
 
                     // 12. Social Buttons (Google & Apple)
-                    const SocialButtons(),
+                    SocialButtons(
+                      onGoogleTap: isLoading
+                          ? null
+                          : () {
+                              context
+                                  .read<AuthBloc>()
+                                  .add(GoogleSignUpRequested());
+                            },
+                    ),
 
                     const SizedBox(
                       height: AppDimensions.heightBetweenButtonAndText,
