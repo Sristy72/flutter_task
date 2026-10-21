@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_task/core/di/injection.dart';
+import 'package:flutter_task/core/routing/app_routes.dart';
 import 'package:flutter_task/core/theme/app_icons.dart';
 import 'package:flutter_task/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:flutter_task/features/home/presentation/home_bloc/home_event.dart';
@@ -112,18 +113,30 @@ class _HomeView extends StatelessWidget {
       );
     }
 
-    // ── Generic Error (no cached data) ────────────────────────────────────────
+    // ── Generic / Auth Error (no cached data) ─────────────────────────────────
     if (state.status == HomeStatus.failure && data == null) {
+      final isAuthError = state.errorMsg != null &&
+          (state.errorMsg!.contains('UNAUTHENTICATED') ||
+              state.errorMsg!.contains('not valid') ||
+              state.errorMsg!.contains('Unauthorized') ||
+              state.errorMsg!.contains('401'));
+
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.wifi_off, color: AppColors.hintColor, size: 48),
+              Icon(
+                isAuthError ? Icons.lock_clock_outlined : Icons.wifi_off,
+                color: AppColors.hintColor,
+                size: 48,
+              ),
               const SizedBox(height: 16),
               Text(
-                state.errorMsg ?? 'Something went wrong',
+                isAuthError
+                    ? 'Session expired. Please log in again.'
+                    : (state.errorMsg ?? 'Something went wrong'),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.hintColor,
@@ -135,9 +148,18 @@ class _HomeView extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryButton,
                 ),
-                onPressed: () =>
-                    context.read<HomeBloc>().add(FetchDashboard()),
-                child: const Text('Retry'),
+                onPressed: () {
+                  if (isAuthError) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.login,
+                      (route) => false,
+                    );
+                  } else {
+                    context.read<HomeBloc>().add(FetchDashboard());
+                  }
+                },
+                child: Text(isAuthError ? 'Go to Login' : 'Retry'),
               ),
             ],
           ),

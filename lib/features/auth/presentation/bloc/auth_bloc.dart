@@ -2,21 +2,28 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 
 import '../../../../core/network/api_exception.dart';
+import '../../data/models/requests/google_signin_request_model.dart';
 import '../../data/models/requests/guest_login_request_model.dart';
 import '../../data/models/requests/login_request_model.dart';
 import '../../data/models/requests/signup_request_model.dart';
 import '../../data/models/requests/verify_otp_request_model.dart';
+import '../../data/models/response/login_response_model.dart';
 import '../../data/repository/auth_repository.dart';
+import '../../data/services/google_auth_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
+  final GoogleAuthService googleAuthService;
 
   Timer? _resendTimer;
   Timer? _lockoutTimer;
 
-  AuthBloc({required this.authRepository}) : super(AuthState()) {
+  AuthBloc({
+    required this.authRepository,
+    required this.googleAuthService,
+  }) : super(AuthState()) {
     // Sign up
     on<SignUpFormChanged>(_onSignUpFormChanged);
     on<PasswordVisibilityCheck>(_passwordVisibilityCheck);
@@ -30,6 +37,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<Login>(_login);
     on<GuestLogin>(_guestLogin);
     on<Logout>(_onLogout);
+
+    // Social Auth
+    on<GoogleSignInRequested>(_onGoogleSignInRequested);
+    on<GoogleSignUpRequested>(_onGoogleSignUpRequested);
 
     // Status reset
     on<AuthStatusReset>(_onAuthStatusReset);
@@ -239,6 +250,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onLogout(Logout event, Emitter<AuthState> emit) async {
+    await googleAuthService.signOut();
     await authRepository.authStorageService.clearToken();
     emit(AuthState(status: AuthStatus.unauthenticated));
   }
@@ -355,6 +367,114 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     }
   }
+
+  // ─── Social Auth Handlers ───────────────────────────────────────────────────
+
+  Future<void> _onGoogleSignInRequested(
+    GoogleSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    try {
+      // Always get a fresh Firebase ID token right before sending to backend
+      final idToken = await googleAuthService.getFirebaseIdToken();
+      if (idToken == null) {
+        emit(state.copyWith(status: AuthStatus.initial));
+        return;
+      }
+
+      final request = FirebaseSignInRequestModel(
+        idToken: idToken,
+        provider: 'google',
+        deviceId: event.deviceId,
+      );
+
+      LoginResponseModel response;
+      try {
+        response = await authRepository.socialSignIn(request);
+      } on ApiException catch (e) {
+        final msg = e.message.toLowerCase();
+        if (e.statusCode == 404 ||
+            msg.contains('not found') ||
+            msg.contains('does not exist')) {
+          response = await authRepository.socialSignUp(request);
+        } else {
+          rethrow;
+        }
+      }
+
+      emit(state.copyWith(
+        status: AuthStatus.authenticated,
+        loginResponse: response,
+        successMsg: 'Google sign-in successful!',
+      ));
+    } on ApiException catch (e) {
+      emit(state.copyWith(
+        status: AuthStatus.failure,
+        errorMsg: e.message,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: AuthStatus.failure,
+        errorMsg: 'Google sign-in failed: ${e.toString()}',
+      ));
+    }
+  }
+
+  Future<void> _onGoogleSignUpRequested(
+    GoogleSignUpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    try {
+      // Always get a fresh Firebase ID token right before sending to backend
+      final idToken = await googleAuthService.getFirebaseIdToken();
+      if (idToken == null) {
+        emit(state.copyWith(status: AuthStatus.initial));
+        return;
+      }
+
+      final request = FirebaseSignInRequestModel(
+        idToken: idToken,
+        provider: 'google',
+        deviceId: event.deviceId,
+      );
+
+      LoginResponseModel response;
+      try {
+        response = await authRepository.socialSignUp(request);
+      } on ApiException catch (e) {
+        final msg = e.message.toLowerCase();
+        if ((e.statusCode == 400 &&
+                (msg.contains('already exists') ||
+                    msg.contains('registered'))) ||
+            e.statusCode == 409) {
+          response = await authRepository.socialSignIn(request);
+        } else {
+          rethrow;
+        }
+      }
+
+      emit(state.copyWith(
+        status: AuthStatus.authenticated,
+        loginResponse: response,
+        successMsg: 'Google sign-up successful!',
+      ));
+    } on ApiException catch (e) {
+      emit(state.copyWith(
+        status: AuthStatus.failure,
+        errorMsg: e.message,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: AuthStatus.failure,
+        errorMsg: 'Google sign-up failed: ${e.toString()}',
+      ));
+    }
+  }
+
 
   @override
   Future<void> close() {

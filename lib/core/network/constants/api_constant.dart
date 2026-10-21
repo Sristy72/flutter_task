@@ -8,7 +8,9 @@ class ApiConstants {
   static const String guestLogin = '$baseUrl/auth/guest/login/';
   static const String register = '$baseUrl/auth/sign-up/';
   static const String verifyOtp = '$baseUrl/auth/sign-up/verify/';
-  static const String logout = 'auth/logout';
+  static const String socialSignUp = '$baseUrl/auth/social/sign-up/';
+  static const String socialSignIn = '$baseUrl/auth/social/login/';
+  static const String logout = 'auth/logout/';
 
 
   // home

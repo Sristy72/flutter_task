@@ -49,7 +49,7 @@ class RegistrationSuccessfullScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
                           context,
-                          AppRoutes.home,
+                          AppRoutes.navBar,
                           (route) => false,
                         );
                       },

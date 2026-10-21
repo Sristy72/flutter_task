@@ -1,13 +1,14 @@
+import 'package:flutter_task/features/home/data/repositories/home_repository.dart';
+import 'package:flutter_task/features/home/presentation/home_bloc/home_bloc.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../features/auth/data/repository/auth_repository.dart';
-import '../../features/auth/presentation/bloc/auth_bloc.dart';
-import '../../features/home/data/repositories/home_repository.dart';
-import '../../features/home/presentation/home_bloc/home_bloc.dart';
-import '../network/api_client.dart';
-import '../network/service/auth_storage_service.dart';
-import '../network/service/hive_storage_service.dart';
-import '../network/service/secure_storage_service.dart';
+import 'package:flutter_task/features/auth/data/repository/auth_repository.dart';
+import 'package:flutter_task/features/auth/data/services/google_auth_service.dart';
+import 'package:flutter_task/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:flutter_task/core/network/api_client.dart';
+import 'package:flutter_task/core/network/service/auth_storage_service.dart';
+import 'package:flutter_task/core/network/service/hive_storage_service.dart';
+import 'package:flutter_task/core/network/service/secure_storage_service.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -27,11 +28,16 @@ Future<void> setupDependencies() async {
     () => HiveStorageService(),
   );
 
-  // Network (depends on AuthStorageService for Bearer token injection)
+  // Network
   getIt.registerLazySingleton<ApiClient>(
     () => ApiClient(
       authStorageService: getIt<AuthStorageService>(),
     ),
+  );
+
+  // Services
+  getIt.registerLazySingleton<GoogleAuthService>(
+    () => GoogleAuthService(),
   );
 
   // Repositories
@@ -41,7 +47,6 @@ Future<void> setupDependencies() async {
       authStorageService: getIt<AuthStorageService>(),
     ),
   );
-
   getIt.registerLazySingleton<HomeRepository>(
     () => HomeRepository(
       apiClient: getIt<ApiClient>(),
@@ -52,12 +57,12 @@ Future<void> setupDependencies() async {
   getIt.registerFactory<AuthBloc>(
     () => AuthBloc(
       authRepository: getIt<AuthRepository>(),
+      googleAuthService: getIt<GoogleAuthService>(),
     ),
   );
 
   getIt.registerFactory<HomeBloc>(
-    () => HomeBloc(
-      homeRepository: getIt<HomeRepository>(),
+    () => HomeBloc(homeRepository: getIt<HomeRepository>()
     ),
   );
 }

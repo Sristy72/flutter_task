@@ -103,7 +103,7 @@ class _DeenSplashScreenState extends State<DeenSplashScreen>
           );
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.home,
+            AppRoutes.navBar,
             (route) => false,
           );
         } else if (state.status == AuthStatus.failure) {

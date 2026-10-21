@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
           );
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.home,
+            AppRoutes.navBar,
             (route) => false,
           );
         } else if (state.status == AuthStatus.failure) {
@@ -233,7 +233,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: AppDimensions.heightMedium),
 
                     // 10. Social Buttons (Google & Apple)
-                    const SocialButtons(),
+                    SocialButtons(
+                      onGoogleTap: isLoading
+                          ? null
+                          : () {
+                              context
+                                  .read<AuthBloc>()
+                                  .add(GoogleSignInRequested());
+                            },
+                    ),
 
                     const SizedBox(
                       height: AppDimensions.heightBetweenButtonAndText,

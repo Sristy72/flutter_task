@@ -47,11 +47,16 @@ class ApiClient {
           debugPrint('📦 [Response Data] ${response.data}');
           handler.next(response);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           debugPrint(
               '❌ [API Error] ${error.response?.statusCode} ${error.requestOptions.uri}');
           debugPrint('⚠️ [Error Message] ${error.message}');
           debugPrint('📦 [Error Data] ${error.response?.data}');
+
+          if (error.response?.statusCode == 401) {
+            await authStorageService.clearToken();
+          }
+
           handler.next(error);
         },
       ),

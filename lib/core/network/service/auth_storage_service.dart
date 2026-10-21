@@ -127,10 +127,33 @@ class AuthStorageService {
     await secureStorage.delete('user_name');
     await secureStorage.delete('user_email');
   }
+  bool isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+      final payload = base64Url.normalize(parts[1]);
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final map = jsonDecode(decoded);
+      if (map is Map && map.containsKey('exp')) {
+        final exp = map['exp'];
+        final expSeconds =
+            (exp is num) ? exp.toInt() : int.tryParse(exp.toString());
+        if (expSeconds != null) {
+          final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+          return nowSeconds >= expSeconds;
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
 
   Future<bool> isLoggedIn() async {
     final token = await getAccessToken();
     if (token != null && token.isNotEmpty) {
+      if (isTokenExpired(token)) {
+        await clearToken();
+        return false;
+      }
       return true;
     }
     return isGuest();

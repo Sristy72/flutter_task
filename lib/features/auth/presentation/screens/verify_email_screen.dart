@@ -130,7 +130,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
           Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.home,
+            AppRoutes.navBar,
                 (route) => false,
           );
         }
