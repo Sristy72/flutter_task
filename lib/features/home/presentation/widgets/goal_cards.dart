@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colours.dart';
 import '../../../../core/theme/app_dimentions.dart';
+import '../../data/models/responses/prayer_dashboard_response_model.dart';
 
 class GoalCards extends StatelessWidget {
-  const GoalCards({super.key});
+  final DailyGoal? dailyGoal;
+  final PrayerStreak? streak;
+
+  const GoalCards({super.key, this.dailyGoal, this.streak});
 
   @override
   Widget build(BuildContext context) {
+    final completed = dailyGoal?.completed ?? 0;
+    final target = dailyGoal?.target ?? 5;
+    final currentStreak = streak?.current ?? 0;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -15,9 +23,11 @@ class GoalCards extends StatelessWidget {
             title: 'Daily Goal',
             icon: Icons.access_time,
             iconColor: AppColors.timerColor,
-            number: '0',
-            suffix: '/5',
-            message: 'Track a prayer to unlock goals',
+            number: '$completed',
+            suffix: '/$target',
+            message: completed == 0
+                ? 'Track a prayer to unlock goals'
+                : '$completed of $target prayers done',
             messageColor: AppColors.primaryButton,
           ),
         ),
@@ -27,9 +37,11 @@ class GoalCards extends StatelessWidget {
             title: 'Current Streak',
             icon: Icons.local_fire_department,
             iconColor: const Color(0xFFF5D47A),
-            number: '0',
+            number: '$currentStreak',
             suffix: ' days',
-            message: 'Log today to begin streak',
+            message: currentStreak == 0
+                ? 'Log today to begin streak'
+                : 'Keep it up! 🔥',
             messageColor: AppColors.streakTextColor,
           ),
         ),

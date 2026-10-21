@@ -3,44 +3,53 @@ import 'package:flutter/foundation.dart';
 import '../constants/app_constant.dart';
 import 'api_exception.dart';
 import 'constants/api_constant.dart';
+import 'service/auth_storage_service.dart';
 
 class ApiClient {
   final Dio dio;
+  final AuthStorageService authStorageService;
 
-  ApiClient()
+  ApiClient({required this.authStorageService})
       : dio = Dio(
-    BaseOptions(
-      baseUrl: ApiConstants.baseUrl,
-      connectTimeout: const Duration(
-        milliseconds: AppConstants.connectionTimeout,
-      ),
-      receiveTimeout: const Duration(
-        milliseconds: AppConstants.receiveTimeout,
-      ),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-    ),
-  ) {
+          BaseOptions(
+            baseUrl: ApiConstants.baseUrl,
+            connectTimeout: const Duration(
+              milliseconds: AppConstants.connectionTimeout,
+            ),
+            receiveTimeout: const Duration(
+              milliseconds: AppConstants.receiveTimeout,
+            ),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          ),
+        ) {
     _setupInterceptors();
   }
 
   void _setupInterceptors() {
+    // Auth token interceptor — attaches Bearer token to every request
     dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
+          final token = await authStorageService.getAccessToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           debugPrint('🌐 [API Request] ${options.method} ${options.uri}');
           debugPrint('📦 [Request Data] ${options.data}');
           handler.next(options);
         },
         onResponse: (response, handler) {
-          debugPrint('✅ [API Response] ${response.statusCode} ${response.requestOptions.uri}');
+          debugPrint(
+              '✅ [API Response] ${response.statusCode} ${response.requestOptions.uri}');
           debugPrint('📦 [Response Data] ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) {
-          debugPrint('❌ [API Error] ${error.response?.statusCode} ${error.requestOptions.uri}');
+          debugPrint(
+              '❌ [API Error] ${error.response?.statusCode} ${error.requestOptions.uri}');
           debugPrint('⚠️ [Error Message] ${error.message}');
           debugPrint('📦 [Error Data] ${error.response?.data}');
           handler.next(error);
@@ -50,9 +59,9 @@ class ApiClient {
   }
 
   Future<Response> get(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-      }) async {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
       return await dio.get(
         path,
@@ -64,10 +73,10 @@ class ApiClient {
   }
 
   Future<Response> post(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
       return await dio.post(
         path,
@@ -79,12 +88,12 @@ class ApiClient {
     }
   }
 
-  Future<Response> put(
-      String path, {
-        dynamic data,
-      }) async {
+  Future<Response> patch(
+    String path, {
+    dynamic data,
+  }) async {
     try {
-      return await dio.put(
+      return await dio.patch(
         path,
         data: data,
       );
@@ -94,9 +103,9 @@ class ApiClient {
   }
 
   Future<Response> delete(
-      String path, {
-        dynamic data,
-      }) async {
+    String path, {
+    dynamic data,
+  }) async {
     try {
       return await dio.delete(
         path,
@@ -117,10 +126,29 @@ class ApiClient {
           message = data['detail']?.toString() ?? 'Server error';
         } else if (data.containsKey('message')) {
           message = data['message']?.toString() ?? 'Server error';
-        } else if (data['data'] is Map && (data['data'] as Map).containsKey('detail')) {
-          message = (data['data'] as Map)['detail']?.toString() ?? 'Server error';
+        } else if (data['data'] is Map &&
+            (data['data'] as Map).containsKey('detail')) {
+          message =
+              (data['data'] as Map)['detail']?.toString() ?? 'Server error';
         } else if (data.containsKey('error')) {
-          message = data['error']?.toString() ?? 'Server error';
+          final err = data['error'];
+          if (err is Map) {
+            if (err.containsKey('fields') && err['fields'] is Map) {
+              final fields = err['fields'] as Map;
+              final firstVal = fields.values.isNotEmpty ? fields.values.first : null;
+              if (firstVal is List && firstVal.isNotEmpty) {
+                message = firstVal.first.toString();
+              } else {
+                message = err['message']?.toString() ?? 'Validation failed';
+              }
+            } else if (err.containsKey('message')) {
+              message = err['message']?.toString() ?? 'Server error';
+            } else {
+              message = err.toString();
+            }
+          } else {
+            message = err?.toString() ?? 'Server error';
+          }
         } else if (data.isNotEmpty) {
           final firstVal = data.values.first;
           if (firstVal is List && firstVal.isNotEmpty) {

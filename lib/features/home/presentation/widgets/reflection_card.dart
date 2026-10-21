@@ -3,12 +3,20 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colours.dart';
 import '../../../../core/theme/app_dimentions.dart';
 import '../../../../core/theme/app_icons.dart';
+import '../../data/models/responses/prayer_dashboard_response_model.dart';
 
 class ReflectionCard extends StatelessWidget {
-  const ReflectionCard({super.key});
+  final AiReflection? aiReflection;
+
+  const ReflectionCard({super.key, this.aiReflection});
 
   @override
   Widget build(BuildContext context) {
+    final text = aiReflection?.text ??
+        'Assalamu alaikum! Welcome to your space for spiritual growth. '
+            'Every big journey begins with a small step. Log your first prayer '
+            'today to start building a beautiful, consistent habit';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.backButtonIconSize),
@@ -51,9 +59,9 @@ class ReflectionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppDimensions.radiusMedium),
-          const Text(
-            'Assalamu alaikum! Welcome to your space for spiritual growth. Every big journey begins with a small step. Log your first prayer today to start building a beautiful, consistent habit',
-            style: TextStyle(
+          Text(
+            text,
+            style: const TextStyle(
               color: AppColors.hintColor,
               fontSize: AppDimensions.fontSizeMedium,
               fontWeight: FontWeight.w500,

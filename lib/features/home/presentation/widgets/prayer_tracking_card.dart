@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colours.dart';
 import '../../../../core/theme/app_dimentions.dart';
+import '../../data/models/responses/prayer_dashboard_response_model.dart';
 
 class PrayerTrackingCard extends StatelessWidget {
-  const PrayerTrackingCard({super.key});
+  final NextPrayer? nextPrayer;
+  final DailyGoal? dailyGoal;
+
+  const PrayerTrackingCard({super.key, this.nextPrayer, this.dailyGoal});
 
   @override
   Widget build(BuildContext context) {
+    final prayerName = nextPrayer?.name ?? 'the next prayer';
+    final completed = dailyGoal?.completed ?? 0;
+    final target = dailyGoal?.target ?? 5;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.radiusLarge),
@@ -21,13 +29,13 @@ class PrayerTrackingCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Have you prayed Dhuhr?',
-                  style: TextStyle(
+                  'Have you prayed $prayerName?',
+                  style: const TextStyle(
                     color: AppColors.deenColor,
                     fontSize: AppDimensions.fontSizeMedium,
                     fontWeight: FontWeight.w600,
@@ -35,8 +43,8 @@ class PrayerTrackingCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '2/5 prayers tracked today',
-                  style: TextStyle(
+                  '$completed/$target prayers tracked today',
+                  style: const TextStyle(
                     color: AppColors.dateColor,
                     fontSize: AppDimensions.heightMedium,
                     fontWeight: FontWeight.w400,

@@ -1,4 +1,3 @@
-
 class PrayerResponseModel {
   final String status;
   final PrayerLocation location;
@@ -10,7 +9,7 @@ class PrayerResponseModel {
   final DailyGoal dailyGoal;
   final PrayerStreak streak;
   final AiReflection aiReflection;
-  final AbundanceVerse abundanceVerse;
+  final AbundanceVerse? abundanceVerse;
 
   const PrayerResponseModel({
     required this.status,
@@ -23,23 +22,42 @@ class PrayerResponseModel {
     required this.dailyGoal,
     required this.streak,
     required this.aiReflection,
-    required this.abundanceVerse,
+    this.abundanceVerse,
   });
 
   factory PrayerResponseModel.fromJson(Map<String, dynamic> json) {
     return PrayerResponseModel(
-      status: json['status'] as String,
-      location: PrayerLocation.fromJson(json['location']),
-      method: PrayerMethod.fromJson(json['method']),
-      asrJuristicMethod:
-      AsrJuristicMethod.fromJson(json['asr_juristic_method']),
-      date: PrayerDate.fromJson(json['date']),
-      timings: PrayerTimings.fromJson(json['timings']),
-      nextPrayer: NextPrayer.fromJson(json['next_prayer']),
-      dailyGoal: DailyGoal.fromJson(json['daily_goal']),
-      streak: PrayerStreak.fromJson(json['streak']),
-      aiReflection: AiReflection.fromJson(json['ai_reflection']),
-      abundanceVerse: AbundanceVerse.fromJson(json['abundance_verse']),
+      status: json['status']?.toString() ?? '',
+      location: PrayerLocation.fromJson(
+        json['location'] as Map<String, dynamic>? ?? {},
+      ),
+      method: PrayerMethod.fromJson(
+        json['method'] as Map<String, dynamic>? ?? {},
+      ),
+      asrJuristicMethod: AsrJuristicMethod.fromJson(
+        json['asr_juristic_method'] as Map<String, dynamic>? ?? {},
+      ),
+      date: PrayerDate.fromJson(
+        json['date'] as Map<String, dynamic>? ?? {},
+      ),
+      timings: PrayerTimings.fromJson(
+        json['timings'] as Map<String, dynamic>? ?? {},
+      ),
+      nextPrayer: NextPrayer.fromJson(
+        json['next_prayer'] as Map<String, dynamic>? ?? {},
+      ),
+      dailyGoal: DailyGoal.fromJson(
+        json['daily_goal'] as Map<String, dynamic>? ?? {},
+      ),
+      streak: PrayerStreak.fromJson(
+        json['streak'] as Map<String, dynamic>? ?? {},
+      ),
+      aiReflection: AiReflection.fromJson(
+        json['ai_reflection'] as Map<String, dynamic>? ?? {},
+      ),
+      abundanceVerse: json['abundance_verse'] != null
+          ? AbundanceVerse.fromJson(json['abundance_verse'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -55,7 +73,7 @@ class PrayerResponseModel {
       'daily_goal': dailyGoal.toJson(),
       'streak': streak.toJson(),
       'ai_reflection': aiReflection.toJson(),
-      'abundance_verse': abundanceVerse.toJson(),
+      if (abundanceVerse != null) 'abundance_verse': abundanceVerse!.toJson(),
     };
   }
 }
@@ -80,23 +98,23 @@ class PrayerLocation {
 
   factory PrayerLocation.fromJson(Map<String, dynamic> json) {
     return PrayerLocation(
-      latitude: json['latitude'].toString(),
-      longitude: json['longitude'].toString(),
-      address: json['address'] as String,
-      city: json['city'] as String,
-      countryCode: json['country_code'] as String,
-      timezone: json['timezone'] as String,
+      latitude: json['latitude']?.toString() ?? '',
+      longitude: json['longitude']?.toString() ?? '',
+      address: json['address']?.toString() ?? '',
+      city: json['city']?.toString() ?? '',
+      countryCode: json['country_code']?.toString() ?? '',
+      timezone: json['timezone']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'latitude': latitude,
-    'longitude': longitude,
-    'address': address,
-    'city': city,
-    'country_code': countryCode,
-    'timezone': timezone,
-  };
+        'latitude': latitude,
+        'longitude': longitude,
+        'address': address,
+        'city': city,
+        'country_code': countryCode,
+        'timezone': timezone,
+      };
 }
 
 // Prayer calculation method
@@ -111,15 +129,15 @@ class PrayerMethod {
 
   factory PrayerMethod.fromJson(Map<String, dynamic> json) {
     return PrayerMethod(
-      id: json['id'] as int,
-      name: json['name'] as String,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      name: json['name']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-  };
+        'id': id,
+        'name': name,
+      };
 }
 
 // Asr juristic method
@@ -138,19 +156,19 @@ class AsrJuristicMethod {
 
   factory AsrJuristicMethod.fromJson(Map<String, dynamic> json) {
     return AsrJuristicMethod(
-      id: json['id'] as int,
-      key: json['key'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      key: json['key']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'key': key,
-    'name': name,
-    'description': description,
-  };
+        'id': id,
+        'key': key,
+        'name': name,
+        'description': description,
+      };
 }
 
 // Gregorian and Hijri dates
@@ -165,15 +183,19 @@ class PrayerDate {
 
   factory PrayerDate.fromJson(Map<String, dynamic> json) {
     return PrayerDate(
-      gregorian: GregorianDate.fromJson(json['gregorian']),
-      hijri: HijriDate.fromJson(json['hijri']),
+      gregorian: GregorianDate.fromJson(
+        json['gregorian'] as Map<String, dynamic>? ?? {},
+      ),
+      hijri: HijriDate.fromJson(
+        json['hijri'] as Map<String, dynamic>? ?? {},
+      ),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'gregorian': gregorian.toJson(),
-    'hijri': hijri.toJson(),
-  };
+        'gregorian': gregorian.toJson(),
+        'hijri': hijri.toJson(),
+      };
 }
 
 class GregorianDate {
@@ -187,15 +209,15 @@ class GregorianDate {
 
   factory GregorianDate.fromJson(Map<String, dynamic> json) {
     return GregorianDate(
-      date: json['date'] as String,
-      weekdayEn: json['weekday_en'] as String,
+      date: json['date']?.toString() ?? '',
+      weekdayEn: json['weekday_en']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'date': date,
-    'weekday_en': weekdayEn,
-  };
+        'date': date,
+        'weekday_en': weekdayEn,
+      };
 }
 
 class HijriDate {
@@ -213,19 +235,19 @@ class HijriDate {
 
   factory HijriDate.fromJson(Map<String, dynamic> json) {
     return HijriDate(
-      date: json['date'] as String,
-      day: json['day'] as int,
-      monthEn: json['month_en'] as String,
-      year: json['year'] as int,
+      date: json['date']?.toString() ?? '',
+      day: (json['day'] as num?)?.toInt() ?? 1,
+      monthEn: json['month_en']?.toString() ?? '',
+      year: (json['year'] as num?)?.toInt() ?? 1448,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'date': date,
-    'day': day,
-    'month_en': monthEn,
-    'year': year,
-  };
+        'date': date,
+        'day': day,
+        'month_en': monthEn,
+        'year': year,
+      };
 }
 
 // Prayer timings
@@ -248,23 +270,23 @@ class PrayerTimings {
 
   factory PrayerTimings.fromJson(Map<String, dynamic> json) {
     return PrayerTimings(
-      fajr: json['Fajr'] as String,
-      sunrise: json['Sunrise'] as String,
-      dhuhr: json['Dhuhr'] as String,
-      asr: json['Asr'] as String,
-      maghrib: json['Maghrib'] as String,
-      isha: json['Isha'] as String,
+      fajr: json['Fajr']?.toString() ?? '',
+      sunrise: json['Sunrise']?.toString() ?? '',
+      dhuhr: json['Dhuhr']?.toString() ?? '',
+      asr: json['Asr']?.toString() ?? '',
+      maghrib: json['Maghrib']?.toString() ?? '',
+      isha: json['Isha']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'Fajr': fajr,
-    'Sunrise': sunrise,
-    'Dhuhr': dhuhr,
-    'Asr': asr,
-    'Maghrib': maghrib,
-    'Isha': isha,
-  };
+        'Fajr': fajr,
+        'Sunrise': sunrise,
+        'Dhuhr': dhuhr,
+        'Asr': asr,
+        'Maghrib': maghrib,
+        'Isha': isha,
+      };
 }
 
 // Next prayer
@@ -281,17 +303,17 @@ class NextPrayer {
 
   factory NextPrayer.fromJson(Map<String, dynamic> json) {
     return NextPrayer(
-      name: json['name'] as String,
-      at: json['at'] as String,
-      secondsUntil: json['seconds_until'] as int,
+      name: json['name']?.toString() ?? '',
+      at: json['at']?.toString() ?? '',
+      secondsUntil: (json['seconds_until'] as num?)?.toInt() ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'at': at,
-    'seconds_until': secondsUntil,
-  };
+        'name': name,
+        'at': at,
+        'seconds_until': secondsUntil,
+      };
 }
 
 // Daily prayer goal
@@ -306,15 +328,15 @@ class DailyGoal {
 
   factory DailyGoal.fromJson(Map<String, dynamic> json) {
     return DailyGoal(
-      completed: json['completed'] as int,
-      target: json['target'] as int,
+      completed: (json['completed'] as num?)?.toInt() ?? 0,
+      target: (json['target'] as num?)?.toInt() ?? 5,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'completed': completed,
-    'target': target,
-  };
+        'completed': completed,
+        'target': target,
+      };
 }
 
 // Prayer streak
@@ -322,57 +344,57 @@ class PrayerStreak {
   final int current;
   final int longest;
   final bool countedToday;
-  final String lastCountedDate;
+  final String? lastCountedDate;
 
   const PrayerStreak({
     required this.current,
     required this.longest,
     required this.countedToday,
-    required this.lastCountedDate,
+    this.lastCountedDate,
   });
 
   factory PrayerStreak.fromJson(Map<String, dynamic> json) {
     return PrayerStreak(
-      current: json['current'] as int,
-      longest: json['longest'] as int,
-      countedToday: json['counted_today'] as bool,
-      lastCountedDate: json['last_counted_date'] as String,
+      current: (json['current'] as num?)?.toInt() ?? 0,
+      longest: (json['longest'] as num?)?.toInt() ?? 0,
+      countedToday: json['counted_today'] as bool? ?? false,
+      lastCountedDate: json['last_counted_date']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'current': current,
-    'longest': longest,
-    'counted_today': countedToday,
-    'last_counted_date': lastCountedDate,
-  };
+        'current': current,
+        'longest': longest,
+        'counted_today': countedToday,
+        'last_counted_date': lastCountedDate,
+      };
 }
 
 // AI reflection
 class AiReflection {
   final String text;
   final String source;
-  final String forDate;
+  final String? forDate;
 
   const AiReflection({
     required this.text,
     required this.source,
-    required this.forDate,
+    this.forDate,
   });
 
   factory AiReflection.fromJson(Map<String, dynamic> json) {
     return AiReflection(
-      text: json['text'] as String,
-      source: json['source'] as String,
-      forDate: json['for_date'] as String,
+      text: json['text']?.toString() ?? '',
+      source: json['source']?.toString() ?? '',
+      forDate: json['for_date']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'text': text,
-    'source': source,
-    'for_date': forDate,
-  };
+        'text': text,
+        'source': source,
+        'for_date': forDate,
+      };
 }
 
 // Quran verse
@@ -391,17 +413,17 @@ class AbundanceVerse {
 
   factory AbundanceVerse.fromJson(Map<String, dynamic> json) {
     return AbundanceVerse(
-      kind: json['kind'] as String,
-      arabic: json['arabic'] as String,
-      translation: json['translation'] as String,
-      reference: json['reference'] as String,
+      kind: json['kind']?.toString() ?? '',
+      arabic: json['arabic']?.toString() ?? '',
+      translation: json['translation']?.toString() ?? '',
+      reference: json['reference']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'kind': kind,
-    'arabic': arabic,
-    'translation': translation,
-    'reference': reference,
-  };
+        'kind': kind,
+        'arabic': arabic,
+        'translation': translation,
+        'reference': reference,
+      };
 }

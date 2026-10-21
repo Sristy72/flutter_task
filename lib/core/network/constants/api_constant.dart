@@ -13,6 +13,8 @@ class ApiConstants {
 
   // home
   static const String dashboard = '$baseUrl/user/dashboard/';
+  static const String updateLocation = '$baseUrl/user/location/update/';
+  static const String getCurrentLocation = '$baseUrl/user/current/location/';
 
 
 
