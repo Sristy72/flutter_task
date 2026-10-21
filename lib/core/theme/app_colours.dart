@@ -61,4 +61,9 @@ class AppColors {
   static const namazBackColor = Color(0x4D1B3227);
   static const namazColor = Color(0xFFC2CAB0);
   static const namazTextColor = Color(0xFFA3E635);
+  static const nextPrayerBackColor = Color(0xFF16231A);
+  static const nextPrayerBorderColor = Color(0x0DFFFFFF);
+  static const questionBorderColor = Color(0xFF1B3227);
+  static const timerColor = Color(0xFF588374);
+  static const streakTextColor = Color(0xFFFDE047);
 }

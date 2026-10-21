@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_task/features/home/presentation/widgets/prayer_header.dart';
 import '../../../../core/theme/app_colours.dart';
+import '../../../../core/theme/app_dimentions.dart';
+import '../widgets/prayer_tracking_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,14 +21,14 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 28),
         child: Column(
           children: [
-           PrayerHeader(),
-            const SizedBox(height: 20),
+            PrayerHeader(),
+            const SizedBox(height: AppDimensions.radiusLarge),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Column(
                 children: [
-                  _prayerTrackingCard(),
-                  const SizedBox(height: 24),
+                  PrayerTrackingCard(),
+                  const SizedBox(height: AppDimensions.heightMedium1),
                   _goalCards(),
                   const SizedBox(height: 24),
                   _reflectionCard(),
@@ -43,55 +45,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Prayer times header
-
-
-  // Prayer tracking
-  Widget _prayerTrackingCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        children: [
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Have you prayed Dhuhr?',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  '2/5 prayers tracked today',
-                  style: TextStyle(color: Color(0xFFA1A7A7), fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Color(0xFF20372A)),
-            ),
-            child: const Icon(Icons.question_mark, color: lime, size: 27),
-          ),
-        ],
-      ),
-    );
-  }
-
   // Daily goal and streak
   Widget _goalCards() {
     return Row(
@@ -101,11 +54,11 @@ class HomeScreen extends StatelessWidget {
           child: _goalCard(
             title: 'Daily Goal',
             icon: Icons.access_time,
-            iconColor: const Color(0xFF5A897B),
+            iconColor: AppColors.timerColor,
             number: '0',
             suffix: '/5',
             message: 'Track a prayer to unlock goals',
-            messageColor: lime,
+            messageColor: AppColors.primaryButton,
           ),
         ),
         const SizedBox(width: 14),
@@ -113,11 +66,11 @@ class HomeScreen extends StatelessWidget {
           child: _goalCard(
             title: 'Current Streak',
             icon: Icons.local_fire_department,
-            iconColor: const Color(0xFFFFD54F),
+            iconColor: const Color(0xFFF5D47A),
             number: '0',
             suffix: ' days',
             message: 'Log today to begin streak',
-            messageColor: const Color(0xFFFFD54F),
+            messageColor: AppColors.streakTextColor,
           ),
         ),
       ],
@@ -134,12 +87,14 @@ class HomeScreen extends StatelessWidget {
     required Color messageColor,
   }) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 270),
-      padding: const EdgeInsets.all(20),
+      constraints: const BoxConstraints(minHeight: 180),
+      padding: const EdgeInsets.all(AppDimensions.backButtonIconSize),
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(38),
-        border: Border.all(color: borderColor, width: 1.5),
+        color: AppColors.cardBackColor,
+        borderRadius: BorderRadius.circular(
+          AppDimensions.heightBetweenButtonAndText,
+        ),
+        border: Border.all(color: AppColors.textFieldBorderColor, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,16 +105,16 @@ class HomeScreen extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
-                    color: muted,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    color: AppColors.hintColor,
+                    fontSize: AppDimensions.heightMedium,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              Icon(icon, color: iconColor, size: 29),
+              Icon(icon, color: iconColor, size: 19),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppDimensions.radiusLarge),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -170,25 +125,29 @@ class HomeScreen extends StatelessWidget {
                 Text(
                   number,
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 52,
-                    fontWeight: FontWeight.bold,
+                    color: AppColors.deenColor,
+                    fontSize: AppDimensions.boldFontSize,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   suffix,
-                  style: const TextStyle(color: muted, fontSize: 23),
+                  style: const TextStyle(
+                    color: AppColors.hintColor,
+                    fontSize: AppDimensions.radiusLarge,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             message,
             style: TextStyle(
               color: messageColor,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontSize: AppDimensions.heightMedium,
+              fontWeight: FontWeight.w700,
               height: 1.45,
             ),
           ),
@@ -373,6 +332,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-
-
