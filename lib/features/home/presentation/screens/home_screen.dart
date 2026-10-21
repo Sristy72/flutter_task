@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_task/features/home/presentation/widgets/prayer_header.dart';
+import '../../../../core/theme/app_colours.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,230 +14,37 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: background,
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 28),
-          child: Column(
-            children: [
-              _prayerHeader(context),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 22),
-                child: Column(
-                  children: [
-                    _prayerTrackingCard(),
-                    const SizedBox(height: 24),
-                    _goalCards(),
-                    const SizedBox(height: 24),
-                    _reflectionCard(),
-                    const SizedBox(height: 24),
-                    _abundanceVerseCard(),
-                    const SizedBox(height: 38),
-                    _shortcutCards(),
-                  ],
-                ),
+      backgroundColor: AppColors.cardBackColor,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 28),
+        child: Column(
+          children: [
+           PrayerHeader(),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              child: Column(
+                children: [
+                  _prayerTrackingCard(),
+                  const SizedBox(height: 24),
+                  _goalCards(),
+                  const SizedBox(height: 24),
+                  _reflectionCard(),
+                  const SizedBox(height: 24),
+                  _abundanceVerseCard(),
+                  const SizedBox(height: 38),
+                  _shortcutCards(),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   // Prayer times header
-  Widget _prayerHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(22, 12, 22, 24),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(48)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF52645B), Color(0xFF294A4C), Color(0xFF353F32)],
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.17),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.location_on, color: lime, size: 25),
-                SizedBox(width: 10),
-                Text(
-                  'Gulshan, Dhaka',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              '3 Jumada Al-Awwal, 1447 H',
-              style: TextStyle(color: Color(0xFFE0E3E2), fontSize: 20),
-            ),
-          ),
-          const SizedBox(height: 12),
 
-          // Time and sunset decoration
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      Text(
-                        '18',
-                        style: TextStyle(
-                          fontSize: 76,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFA5D83E),
-                          height: 1,
-                        ),
-                      ),
-                      Text(
-                        ':55',
-                        style: TextStyle(
-                          fontSize: 76,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 38),
-                  child: Text(
-                    'Sat, 25 Oct 2025',
-                    style: TextStyle(color: Color(0xFFE0E3E2), fontSize: 13),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF27392B).withOpacity(0.9),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: const FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                children: [
-                  Icon(Icons.access_time, color: Color(0xFFD2D8B8), size: 23),
-                  SizedBox(width: 8),
-                  Text(
-                    'Maghrib in ',
-                    style: TextStyle(
-                      color: Color(0xFFD2D8B8),
-                      fontSize: 19,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    '0h 29m 3s left',
-                    style: TextStyle(
-                      color: lime,
-                      fontSize: 19,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 28),
-
-          // Prayer time labels
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _PrayerTimeLabel(time: '04:03'),
-              _PrayerTimeLabel(time: '11:37', active: true),
-              _PrayerTimeLabel(time: '15:00'),
-              _PrayerTimeLabel(time: '17:48'),
-              _PrayerTimeLabel(time: '19:02'),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Prayer icons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _prayerIcon(Icons.nightlight_outlined, 'Fajr'),
-              _prayerIcon(Icons.wb_sunny, 'Dhuhr', active: true),
-              _prayerIcon(Icons.cloud_outlined, 'Asr'),
-              _prayerIcon(Icons.cloudy_snowing, 'Maghrib'),
-              _prayerIcon(Icons.nightlight_round, 'Isha'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _prayerIcon(IconData icon, String label, {bool active = false}) {
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: active ? lime : const Color(0xFF101419),
-              border: active
-                  ? null
-                  : Border.all(color: const Color(0xFF56604C), width: 1.2),
-            ),
-            child: Icon(
-              icon,
-              size: 33,
-              color: active ? Colors.black : const Color(0xFF78808E),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: active ? lime : const Color(0xFFA0A6B0),
-              fontSize: 15,
-              fontWeight: active ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // Prayer tracking
   Widget _prayerTrackingCard() {
@@ -565,24 +374,5 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _PrayerTimeLabel extends StatelessWidget {
-  final String time;
-  final bool active;
 
-  const _PrayerTimeLabel({required this.time, this.active = false});
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Text(
-        time,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: active ? const Color(0xFFB4ED3D) : const Color(0xFFB2B8BD),
-          fontSize: 13,
-          fontWeight: active ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-    );
-  }
-}

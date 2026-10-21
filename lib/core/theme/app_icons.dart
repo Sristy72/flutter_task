@@ -12,4 +12,9 @@ class AppIcons {
   static const String prayer = 'assets/images/prayer.png';
   static const String home = 'assets/images/home.png';
   static const String profile = 'assets/images/profile.png';
+  static const String homeBackground = 'assets/images/home_background.png';
+  static const String dhuhr = 'assets/images/sunny.png';
+  static const String maghrib = 'assets/images/evening.png';
+  static const String fajr = 'assets/images/night.png';
+  static const String asr = 'assets/images/cloudy.png';
 }

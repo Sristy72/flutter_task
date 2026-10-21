@@ -55,4 +55,10 @@ class AppColors {
   static const watchColor = Color(0xFF94A3B8);
   static const navBarBackColor = Color(0xFF121C18);
   static const navBarBorderColor = Color(0x1F293700);
+  static const locationBackColor = Color(0x4D1B3227);
+  static const timeColor = Color(0xFFA3D152);
+  static const dateColor = Color(0xFFE5E7EB);
+  static const namazBackColor = Color(0x4D1B3227);
+  static const namazColor = Color(0xFFC2CAB0);
+  static const namazTextColor = Color(0xFFA3E635);
 }

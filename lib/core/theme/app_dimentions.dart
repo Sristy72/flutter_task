@@ -36,4 +36,6 @@ class AppDimensions {
 
   static const double socialButtonSize = 42;
   static const double lockBorderRadius = 9999;
+
+  static const double timeFontSize = 10;
 }
