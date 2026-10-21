@@ -5,6 +5,7 @@ import 'package:flutter_task/features/auth/data/models/response/guest_login_resp
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/constants/api_constant.dart';
 import '../../../../core/network/service/auth_storage_service.dart';
+import '../models/requests/google_signin_request_model.dart';
 import '../models/requests/login_request_model.dart';
 import '../models/requests/signup_request_model.dart';
 import '../models/requests/verify_otp_request_model.dart';
@@ -140,5 +141,63 @@ class AuthRepository {
     await authStorageService.saveIsGuest(true);
 
     return guestResponse;
+  }
+
+  Future<LoginResponseModel> socialSignIn(FirebaseSignInRequestModel request) async {
+    final response = await apiClient.post(
+      ApiConstants.socialSignIn,
+      data: request.toJson(),
+    );
+
+    final jsonMap = _toJsonMap(response.data);
+    final loginResponse = LoginResponseModel.fromJson(jsonMap);
+
+    if (loginResponse.access.isNotEmpty) {
+      await authStorageService.saveAccessToken(loginResponse.access);
+    }
+    if (loginResponse.refresh.isNotEmpty) {
+      await authStorageService.saveRefreshToken(loginResponse.refresh);
+    }
+    if (loginResponse.user != null) {
+      await authStorageService.saveUserId(loginResponse.user!.id.toString());
+      if (loginResponse.user!.fullName.isNotEmpty) {
+        await authStorageService.saveUserName(loginResponse.user!.fullName);
+      }
+      if (loginResponse.user!.email.isNotEmpty) {
+        await authStorageService.saveUserEmail(loginResponse.user!.email);
+      }
+    }
+    await authStorageService.saveIsGuest(false);
+
+    return loginResponse;
+  }
+
+  Future<LoginResponseModel> socialSignUp(FirebaseSignInRequestModel request) async {
+    final response = await apiClient.post(
+      ApiConstants.socialSignUp,
+      data: request.toJson(),
+    );
+
+    final jsonMap = _toJsonMap(response.data);
+    final loginResponse = LoginResponseModel.fromJson(jsonMap);
+
+    if (loginResponse.access.isNotEmpty) {
+      await authStorageService.saveAccessToken(loginResponse.access);
+    }
+    if (loginResponse.refresh.isNotEmpty) {
+      await authStorageService.saveRefreshToken(loginResponse.refresh);
+    }
+    if (loginResponse.user != null) {
+      await authStorageService.saveUserId(loginResponse.user!.id.toString());
+      if (loginResponse.user!.fullName.isNotEmpty) {
+        await authStorageService.saveUserName(loginResponse.user!.fullName);
+      }
+      if (loginResponse.user!.email.isNotEmpty) {
+        await authStorageService.saveUserEmail(loginResponse.user!.email);
+      }
+    }
+    await authStorageService.saveIsGuest(false);
+
+    return loginResponse;
   }
 }
