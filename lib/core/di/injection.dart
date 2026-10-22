@@ -8,6 +8,7 @@ import 'package:flutter_task/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_task/core/network/api_client.dart';
 import 'package:flutter_task/core/network/service/auth_storage_service.dart';
 import 'package:flutter_task/core/network/service/secure_storage_service.dart';
+import 'package:flutter_task/core/notification/notification_service.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -33,6 +34,9 @@ Future<void> setupDependencies() async {
   // Services
   getIt.registerLazySingleton<GoogleAuthService>(
     () => GoogleAuthService(),
+  );
+  getIt.registerLazySingleton<NotificationService>(
+    () => NotificationService.instance,
   );
 
   // Repositories

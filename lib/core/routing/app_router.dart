@@ -14,6 +14,9 @@ class AppRouter {
 
   static const Color _routeBackgroundColor = Color(0xFF0C0E0D);
 
+  static final GlobalKey<NavigatorState> navigatorKey =
+  GlobalKey<NavigatorState>();
+
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.splash:

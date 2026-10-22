@@ -39,7 +39,10 @@ lib/
 │   │   │   ├── auth_storage_service.dart
 │   │   │   └── secure_storage_service.dart
 │   │   ├── api_client.dart
-│   │   ├── api_exception.dart
+│   │   └── api_exception.dart
+│   ├── notification/
+│   │   ├── notification_service.dart
+│   │   └── notification_navigation.dart
 │   ├── routing/
 │   │   ├── app_router.dart
 │   │   └── app_routes.dart
@@ -96,6 +99,23 @@ storage_constants.dart - String key constants for storage (e.g., accessTokenKey,
 
 secure_storage_service.dart - Low-level wrapper around encrypted storage (flutter_secure_storage) for sensitive credentials on iOS Keychain and Android Keystore.
 auth_storage_service.dart - Higher-level authentication session manager. Provides methods like saveToken(), getToken(), saveUser(), isLoggedIn(), and clearAuthData().
+
+notification/ - notification_service.dart is the control center for all notifications in the app.
+Asks Permission: Prompts the user (Allow notifications?) on Android 13+ and iOS.
+Gets the FCM Token: Generates the phone's unique "address" so Firebase knows where to send notifications.
+Handles All 3 App States:
+App Open (Foreground): Catches the message and forces a heads-up pop-up banner so the user sees it immediately.
+App Minimized (Background): Shows in the top status bar; tapping it brings the user back into the app.
+App Closed (Terminated): Wakes up the app and displays the notification.
+Deep Linking: Tapping a notification opens the exact target screen (e.g. /home) sent inside the message data.
+
+How Firebase Push Notifications actually working in the app (in 3 Simple Steps)
+
+Sending: i am sending a message from the Firebase Console.
+Delivery: Google's servers send the message directly to phone's operating system (Android / iOS).
+Display & Action: If users are outside the app: The phone's status bar displays the notification.
+If users are inside the app:NotificationService displays a banner at the top of the screen.
+When tapped: The app reads the payload and takes the user straight to that screen.
 
 app_routes.dart - Holds route name constants (/, /login, /signup, /verify-email, /home, /nav-bar). Prevents typos in screen navigation.
 app_router.dart - Handles dynamic route resolution using onGenerateRoute. Contains a custom PageRouteBuilder transition with a dark background (#0C0E0D) to prevent white screen flashes during page transitions in dark mode.
