@@ -212,3 +212,7 @@ Step 8: Register Dependencies
 Step 9: Build the UI
 Step 10: Add Navigation
 Step 12: Review and Commit
+
+Important
+I tried to implement Google Sign-In and Sign-Up by following all the steps you provided. However, when I tested the functionality, it consistently showed an “Invalid Token” error. I reviewed the entire code, but I couldn’t find any mistakes.
+So i implemented this but its not working.
