@@ -21,6 +21,43 @@ class _PrayerHeaderState extends State<PrayerHeader> {
   late DateTime _currentTime;
   Timer? _timer;
   int _secondsUntil = 0;
+  final ValueNotifier<Map<String, bool>> _manualDoneStatus =
+      ValueNotifier(<String, bool>{});
+
+  bool _isPrayerDone(int index, String name, String timeStr) {
+    final lowerName = name.toLowerCase();
+    if (_manualDoneStatus.value.containsKey(lowerName)) {
+      return _manualDoneStatus.value[lowerName]!;
+    }
+
+    // 1. Daily goal completed count from backend
+    final completedCount = widget.data?.dailyGoal.completed ?? 0;
+    if (completedCount > 0 && index < completedCount) {
+      return true;
+    }
+
+    // 2. Relative timeline position to nextPrayer
+    final nextPrayerName = widget.data?.nextPrayer.name.toLowerCase();
+    const prayerOrder = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    final nextIndex = prayerOrder.indexOf(nextPrayerName ?? '');
+    if (nextIndex > 0 && index < nextIndex) {
+      return true;
+    }
+
+    // 3. If next prayer is Fajr and it is late night, all previous prayers are completed
+    if (nextIndex == 0 && index > 0 && _currentTime.hour >= 20) {
+      return true;
+    }
+
+    return false;
+  }
+
+  void _togglePrayerDone(String name, int index, String timeStr) {
+    final lower = name.toLowerCase();
+    final currentStatus = _isPrayerDone(index, name, timeStr);
+    _manualDoneStatus.value = Map.of(_manualDoneStatus.value)
+      ..[lower] = !currentStatus;
+  }
 
   @override
   void initState() {
@@ -55,6 +92,7 @@ class _PrayerHeaderState extends State<PrayerHeader> {
   @override
   void dispose() {
     _timer?.cancel();
+    _manualDoneStatus.dispose();
     super.dispose();
   }
 
@@ -245,53 +283,69 @@ class _PrayerHeaderState extends State<PrayerHeader> {
           const SizedBox(height: AppDimensions.paddingLarge),
 
           // Prayer timeline
-          if (timings != null)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _prayerItem(
-                  time: timings.fajr,
-                  icon: AppIcons.fajr,
-                  name: 'Fajr',
-                  isFajr: true,
-                ),
-                _prayerItem(
-                  time: timings.dhuhr,
-                  icon: AppIcons.dhuhr,
-                  name: 'Dhuhr',
-                  isActive: nextPrayer?.name.toLowerCase() == 'dhuhr',
-                ),
-                _prayerItem(
-                  time: timings.asr,
-                  icon: AppIcons.asr,
-                  name: 'Asr',
-                  isActive: nextPrayer?.name.toLowerCase() == 'asr',
-                ),
-                _prayerItem(
-                  time: timings.maghrib,
-                  icon: AppIcons.maghrib,
-                  name: 'Maghrib',
-                  isActive: nextPrayer?.name.toLowerCase() == 'maghrib',
-                ),
-                _prayerItem(
-                  time: timings.isha,
-                  icon: AppIcons.fajr,
-                  name: 'Isha',
-                  isActive: nextPrayer?.name.toLowerCase() == 'isha',
-                ),
-              ],
-            )
-          else
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _prayerItem(time: '—', icon: AppIcons.fajr, name: 'Fajr', isFajr: true),
-                _prayerItem(time: '—', icon: AppIcons.dhuhr, name: 'Dhuhr'),
-                _prayerItem(time: '—', icon: AppIcons.asr, name: 'Asr'),
-                _prayerItem(time: '—', icon: AppIcons.maghrib, name: 'Maghrib'),
-                _prayerItem(time: '—', icon: AppIcons.fajr, name: 'Isha'),
-              ],
-            ),
+          ValueListenableBuilder<Map<String, bool>>(
+            valueListenable: _manualDoneStatus,
+            builder: (context, _, __) {
+              if (timings != null) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _prayerItem(
+                      time: timings.fajr,
+                      icon: AppIcons.fajr,
+                      name: 'Fajr',
+                      isFajr: true,
+                      isActive: nextPrayer?.name.toLowerCase() == 'fajr',
+                      isCompleted: _isPrayerDone(0, 'fajr', timings.fajr),
+                      onTap: () => _togglePrayerDone('fajr', 0, timings.fajr),
+                    ),
+                    _prayerItem(
+                      time: timings.dhuhr,
+                      icon: AppIcons.dhuhr,
+                      name: 'Dhuhr',
+                      isActive: nextPrayer?.name.toLowerCase() == 'dhuhr',
+                      isCompleted: _isPrayerDone(1, 'dhuhr', timings.dhuhr),
+                      onTap: () => _togglePrayerDone('dhuhr', 1, timings.dhuhr),
+                    ),
+                    _prayerItem(
+                      time: timings.asr,
+                      icon: AppIcons.asr,
+                      name: 'Asr',
+                      isActive: nextPrayer?.name.toLowerCase() == 'asr',
+                      isCompleted: _isPrayerDone(2, 'asr', timings.asr),
+                      onTap: () => _togglePrayerDone('asr', 2, timings.asr),
+                    ),
+                    _prayerItem(
+                      time: timings.maghrib,
+                      icon: AppIcons.maghrib,
+                      name: 'Maghrib',
+                      isActive: nextPrayer?.name.toLowerCase() == 'maghrib',
+                      isCompleted: _isPrayerDone(3, 'maghrib', timings.maghrib),
+                      onTap: () => _togglePrayerDone('maghrib', 3, timings.maghrib),
+                    ),
+                    _prayerItem(
+                      time: timings.isha,
+                      icon: AppIcons.fajr,
+                      name: 'Isha',
+                      isActive: nextPrayer?.name.toLowerCase() == 'isha',
+                      isCompleted: _isPrayerDone(4, 'isha', timings.isha),
+                      onTap: () => _togglePrayerDone('isha', 4, timings.isha),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _prayerItem(time: '—', icon: AppIcons.fajr, name: 'Fajr', isFajr: true),
+                  _prayerItem(time: '—', icon: AppIcons.dhuhr, name: 'Dhuhr'),
+                  _prayerItem(time: '—', icon: AppIcons.asr, name: 'Asr'),
+                  _prayerItem(time: '—', icon: AppIcons.maghrib, name: 'Maghrib'),
+                  _prayerItem(time: '—', icon: AppIcons.fajr, name: 'Isha'),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );
@@ -315,87 +369,97 @@ class _PrayerHeaderState extends State<PrayerHeader> {
     bool isActive = false,
     bool isCompleted = false,
     bool isFajr = false,
+    VoidCallback? onTap,
   }) {
-    final bool hasPrimaryBackground = !isFajr && (isActive || isCompleted);
+    // If any prayer is done (and not Fajr), or if it is the next prayer (isActive),
+    // its background will be primarybutton colour.
+    final bool hasPrimaryBackground = (!isFajr && isCompleted) || isActive;
 
     return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Active prayer time moves upward.
-          Transform.translate(
-            offset: Offset(0, isActive ? -5 : 0),
-            child: Text(
-              time,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isActive
-                    ? AppColors.primaryButton
-                    : AppColors.splashTextColour,
-                fontSize: isActive
-                    ? AppDimensions.timeFontSize + 1
-                    : AppDimensions.timeFontSize,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          // Prayer icon and circular border.
-          Container(
-            width: isActive ? 56 : 42,
-            height: isActive ? 56 : 42,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: hasPrimaryBackground
-                  ? AppColors.primaryButton
-                  : const Color(0xFF101419),
-              border: !isFajr && !hasPrimaryBackground
-                  ? Border.all(color: AppColors.textFieldBorderColor, width: 1)
-                  : null,
-            ),
-            child: CustomPaint(
-              foregroundPainter: isFajr
-                  ? DottedCirclePainter(color: AppColors.primaryButton)
-                  : null,
-              child: Padding(
-                padding: EdgeInsets.all(isActive ? 17 : 8),
-                child: Image.asset(
-                  icon,
-                  fit: BoxFit.contain,
-                  color: hasPrimaryBackground
-                      ? Colors.black
-                      : const Color(0xFF78808E),
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Active prayer time moves upward.
+            Transform.translate(
+              offset: Offset(0, isActive ? -5 : 0),
+              child: Text(
+                time,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isActive
+                      ? AppColors.primaryButton
+                      : AppColors.splashTextColour,
+                  fontSize: isActive
+                      ? AppDimensions.timeFontSize + 1
+                      : AppDimensions.timeFontSize,
+                  fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
                 ),
               ),
             ),
-          ),
 
-          const SizedBox(height: AppDimensions.paddingSmall),
+            const SizedBox(height: 10),
 
-          // Prayer name.
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              name,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isActive
+            // Prayer icon and circular border.
+            Container(
+              width: isActive ? 56 : 42,
+              height: isActive ? 56 : 42,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: hasPrimaryBackground
                     ? AppColors.primaryButton
-                    : isCompleted && !isFajr
-                        ? AppColors.primaryButton
-                        : AppColors.splashTextColour,
-                fontSize: isActive
-                    ? AppDimensions.fontSizeMedium
-                    : AppDimensions.radiusMedium,
-                fontWeight: isActive || isCompleted
-                    ? FontWeight.w600
-                    : FontWeight.w400,
+                    : const Color(0xFF101419),
+                border: !isFajr && !hasPrimaryBackground
+                    ? Border.all(
+                        color: isActive
+                            ? AppColors.primaryButton
+                            : AppColors.textFieldBorderColor,
+                        width: isActive ? 1.5 : 1,
+                      )
+                    : null,
+              ),
+              child: CustomPaint(
+                foregroundPainter: isFajr && !hasPrimaryBackground
+                    ? DottedCirclePainter(color: AppColors.primaryButton)
+                    : null,
+                child: Padding(
+                  padding: EdgeInsets.all(isActive ? 17 : 8),
+                  child: Image.asset(
+                    icon,
+                    fit: BoxFit.contain,
+                    color: hasPrimaryBackground
+                        ? Colors.black
+                        : const Color(0xFF78808E),
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: AppDimensions.paddingSmall),
+
+            // Prayer name.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                name,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isActive
+                      ? AppColors.primaryButton
+                      : AppColors.splashTextColour,
+                  fontSize: isActive
+                      ? AppDimensions.fontSizeMedium
+                      : AppDimensions.radiusMedium,
+                  fontWeight: isActive || isCompleted
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
