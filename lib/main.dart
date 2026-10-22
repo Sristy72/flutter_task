@@ -9,6 +9,7 @@ import 'core/routing/app_router.dart';
 import 'core/routing/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/home/presentation/home_bloc/home_bloc.dart';
 import 'features/navigation_menu/navigation_bloc/navigation_menu_bloc.dart';
 
 Future<void> main() async {
@@ -49,6 +50,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<NavigationMenuBloc>(
           create: (_) => NavigationMenuBloc(),
+        ),
+        BlocProvider<HomeBloc>(
+          create: (_) => getIt<HomeBloc>(),
         ),
       ],
       child: MaterialApp(

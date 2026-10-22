@@ -7,7 +7,6 @@ import 'package:flutter_task/features/auth/data/services/google_auth_service.dar
 import 'package:flutter_task/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_task/core/network/api_client.dart';
 import 'package:flutter_task/core/network/service/auth_storage_service.dart';
-import 'package:flutter_task/core/network/service/hive_storage_service.dart';
 import 'package:flutter_task/core/network/service/secure_storage_service.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -22,10 +21,6 @@ Future<void> setupDependencies() async {
     () => AuthStorageService(
       getIt<SecureStorageService>(),
     ),
-  );
-
-  getIt.registerLazySingleton<HiveStorageService>(
-    () => HiveStorageService(),
   );
 
   // Network

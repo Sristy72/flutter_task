@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_task/core/di/injection.dart';
 import 'package:flutter_task/core/routing/app_routes.dart';
 import 'package:flutter_task/core/theme/app_icons.dart';
 import 'package:flutter_task/features/home/presentation/home_bloc/home_bloc.dart';
@@ -15,20 +14,22 @@ import '../../../../core/theme/app_dimentions.dart';
 import '../widgets/prayer_tracking_card.dart';
 import '../widgets/short_cut_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<HomeBloc>()..add(FetchDashboard()),
-      child: const _HomeView(),
-    );
-  }
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeView extends StatelessWidget {
-  const _HomeView();
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final homeBloc = context.read<HomeBloc>();
+    if (homeBloc.state.status == HomeStatus.initial) {
+      homeBloc.add(FetchDashboard());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
