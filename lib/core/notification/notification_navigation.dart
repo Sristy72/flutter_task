@@ -30,9 +30,9 @@ class NotificationNavigation {
         arguments: data,
       );
     } on FormatException {
-      debugPrint('Invalid notification payload');
-    } catch (error) {
-      debugPrint('Notification navigation failed: $error');
+      // invalid payload — ignore
+    } catch (_) {
+      // navigation failed — ignore
     }
   }
 }

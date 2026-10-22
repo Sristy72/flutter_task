@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import '../constants/app_constant.dart';
 import 'api_exception.dart';
 import 'constants/api_constant.dart';
@@ -37,22 +36,12 @@ class ApiClient {
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          debugPrint('🌐 [API Request] ${options.method} ${options.uri}');
-          debugPrint('📦 [Request Data] ${options.data}');
           handler.next(options);
         },
         onResponse: (response, handler) {
-          debugPrint(
-              '✅ [API Response] ${response.statusCode} ${response.requestOptions.uri}');
-          debugPrint('📦 [Response Data] ${response.data}');
           handler.next(response);
         },
         onError: (error, handler) async {
-          debugPrint(
-              '❌ [API Error] ${error.response?.statusCode} ${error.requestOptions.uri}');
-          debugPrint('⚠️ [Error Message] ${error.message}');
-          debugPrint('📦 [Error Data] ${error.response?.data}');
-
           if (error.response?.statusCode == 401) {
             await authStorageService.clearToken();
           }

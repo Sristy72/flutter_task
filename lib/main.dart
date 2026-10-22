@@ -17,11 +17,6 @@ import 'features/navigation_menu/navigation_bloc/navigation_menu_bloc.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  debugPrint('📩 [FCM Background Handler] Received message: ${message.messageId}');
-  debugPrint('   Title: ${message.notification?.title ?? message.data['title']}');
-  debugPrint('   Body: ${message.notification?.body ?? message.data['body']}');
-  debugPrint('   Data: ${message.data}');
 }
 
 Future<void> main() async {

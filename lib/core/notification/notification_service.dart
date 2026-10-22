@@ -81,11 +81,6 @@ class NotificationService {
 
     _messaging.onTokenRefresh.listen((token) {
       _fcmToken = token;
-
-      if (kDebugMode) {
-        debugPrint('FCM token refreshed: $token');
-      }
-
       // Later, send the refreshed token to your backend.
     });
 
@@ -130,13 +125,7 @@ class NotificationService {
     final title = message.notification?.title ?? message.data['title'] ?? 'Notification';
     final body = message.notification?.body ?? message.data['body'] ?? '';
 
-    if (kDebugMode) {
-      debugPrint('📩 [NotificationService] Foreground message received:');
-      debugPrint('   Message ID: ${message.messageId}');
-      debugPrint('   Title: $title');
-      debugPrint('   Body: $body');
-      debugPrint('   Data: ${message.data}');
-    }
+
 
     try {
       final int notificationId = (message.messageId?.hashCode ??
@@ -167,14 +156,7 @@ class NotificationService {
         ),
         payload: jsonEncode(message.data),
       );
-      if (kDebugMode) {
-        debugPrint('✅ [NotificationService] Foreground notification displayed.');
-      }
-    } catch (e, stack) {
-      if (kDebugMode) {
-        debugPrint('❌ [NotificationService] Failed to show notification: $e\n$stack');
-      }
-    }
+    } catch (_) {}
   }
 
   /// Displays an immediate system notification on the device without requiring a backend server.
@@ -217,11 +199,7 @@ class NotificationService {
     try {
       final data = jsonDecode(payload) as Map<String, dynamic>;
       _queueOrOpenNotification(data);
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('Invalid local notification payload: $error');
-      }
-    }
+    } catch (_) {}
   }
 
   void _queueOrOpenNotification(Map<String, dynamic> data) {
@@ -266,16 +244,7 @@ class NotificationService {
         (settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional);
 
-    if (kDebugMode) {
-      if (_permissionGranted) {
-        debugPrint('✅ [NotificationService] Notification permission GRANTED.');
-      } else {
-        debugPrint(
-          '⚠️ [NotificationService] Notification permission DENIED by user. '
-          'Push notifications will not display until granted in settings.',
-        );
-      }
-    }
+
 
     return _permissionGranted;
   }
@@ -285,11 +254,6 @@ class NotificationService {
     final routeRaw = (data['route'] ?? data['screen'] ?? data['path']) as String?;
 
     if (routeRaw == null || routeRaw.isEmpty) {
-      if (kDebugMode) {
-        debugPrint(
-          'ℹ️ [NotificationService] Notification tapped, but no route key was found in payload: $data',
-        );
-      }
       return;
     }
 
@@ -310,12 +274,6 @@ class NotificationService {
     };
 
     if (!allowedRoutes.contains(route)) {
-      if (kDebugMode) {
-        debugPrint(
-          '⚠️ [NotificationService] Unsupported notification route: "$route". '
-          'Allowed routes: $allowedRoutes',
-        );
-      }
       return;
     }
 
@@ -342,16 +300,8 @@ class NotificationService {
     try {
       _fcmToken = await _messaging.getToken();
 
-      if (kDebugMode) {
-        debugPrint('🔥 [NotificationService] FCM Token: $_fcmToken');
-      }
-
       return _fcmToken;
-    } catch (error) {
-      if (kDebugMode) {
-        debugPrint('❌ [NotificationService] Unable to retrieve FCM token: $error');
-      }
-
+    } catch (_) {
       return null;
     }
   }

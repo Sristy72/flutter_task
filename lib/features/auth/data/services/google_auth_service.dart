@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleAuthService {
@@ -27,7 +26,6 @@ class GoogleAuthService {
       // 2. Trigger Google Sign-In dialog
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        debugPrint('ℹ️ [GoogleAuth] Sign-in was cancelled by user');
         return null;
       }
 
@@ -49,8 +47,6 @@ class GoogleAuthService {
       //    Never use googleAuth.idToken here; the backend requires a Firebase ID token.
       final String? idToken =
           await userCredential.user?.getIdToken(true); // forceRefresh=true
-      debugPrint(
-          '✅ [GoogleAuth] Firebase ID token obtained: ${idToken != null ? "SUCCESS" : "NULL"}');
 
       if (idToken == null) {
         throw Exception('Failed to obtain Firebase ID token from user.');
@@ -58,7 +54,6 @@ class GoogleAuthService {
 
       return idToken;
     } catch (e, stack) {
-      debugPrint('❌ [GoogleAuth] Error during Google Sign-in: $e\n$stack');
       rethrow;
     }
   }
@@ -67,8 +62,6 @@ class GoogleAuthService {
     try {
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
-    } catch (e) {
-      debugPrint('⚠️ [GoogleAuth] Error during sign-out: $e');
-    }
+    } catch (_) {}
   }
 }
